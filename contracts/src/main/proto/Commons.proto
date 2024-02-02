@@ -1,0 +1,37 @@
+syntax = "proto3";
+package contracts;
+
+message SongName {
+    string song = 1; 
+}
+message ArtistName {
+    string artist = 1;
+}
+message GenreName {
+    string genre = 1;
+}
+message ClientId {
+    string clientId = 1;
+}
+message SongListenRequest {
+    SongName song = 1;
+    string fileFormat = 2;
+    string ClientId = 3;
+}
+message FileFormat {
+    string fileFormat = 1;
+}
+message SongAndId {
+    SongName song = 1;
+    string ClientId = 2;
+}
+message IdAndPass {
+    ClientId clientId = 1;
+    bytes password = 2;
+}
+message SongList {
+    repeated SongName songNames = 1;
+}
+message SongBytes {
+    bytes songAudio = 1;
+}

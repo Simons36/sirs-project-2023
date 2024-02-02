@@ -1,0 +1,151 @@
+syntax = "proto3";
+package contracts.client;
+
+message SearchSongRequest {
+    string song = 1;
+}
+message SearchSongReply {
+    repeated SongAndFormat songAndFormat = 1;
+}
+
+message SongAndFormat {
+    string song = 1;
+    repeated string fileFormats = 2;
+}
+
+message SearchArtistRequest {
+    string artist = 1;
+}
+message SearchArtistReply {
+    repeated string songs = 1;
+}
+
+message SearchGenreRequest {
+    string genre = 1;
+}
+message SearchGenreReply {
+    repeated string songs = 1;
+}
+
+message ProtectReturnStruct {
+    bytes encryptedContent = 1;
+    bytes iv = 2;
+    bytes digitalSignature = 3;
+    bytes tempEncryptedKey = 4;
+}
+
+message DownloadSongRequest {
+    string song = 1;
+    string artist = 2;
+    string fileFormat = 3;
+    string clientId = 4;
+}
+
+message DownloadSongReply {
+    ProtectReturnStruct songDocument = 1;
+}
+
+message StreamSongRequest {
+    string song = 1;
+    string artist = 2;
+    string fileFormat = 3;
+    string clientId = 4;
+    int32 secondsOffset = 5;
+}
+
+message StreamSongReply {
+    int32 audioSize = 1;
+    bytes iv = 2;
+}
+
+message PreviewSongRequest {
+    string song = 1;
+    string artist = 2;
+    string fileFormat = 3;
+}
+
+message PreviewSongReply {
+    ProtectReturnStruct encryptedAudio = 1;
+}
+
+message PurchaseSongRequest {
+    string song = 1;
+    string artist = 2;
+    string clientId = 3;
+}
+
+message PurchaseSongReply {}
+
+message ViewMyPurchasesRequest {
+    string clientId = 1;
+}
+message ViewMyPurchasesReply {
+    repeated string myPurchases = 1;
+}
+
+message ViewMyPreferencesRequest {
+    string clientId = 1;
+}
+message ViewMyPreferencesReply {
+    repeated string myPreferences = 1;
+}
+
+message AddPreferenceRequest {
+    string song = 1;
+    string artist = 2;
+    string clientId = 3;
+}
+message AddPreferenceReply {}
+
+message RegisterRequest {
+    string clientId = 1;
+    string password = 2;
+}
+
+message RegisterReply {}
+
+message LoginRequest {
+    string clientId = 1;
+    string password = 2;
+}
+
+message LoginReply {}
+
+message FamilyCreationRequest {
+    string clientId = 1;
+    string familyName = 2;
+}
+
+message FamilyCreationReply {
+    string familyCode = 1;
+}
+
+message JoinFamilyRequest {
+    string clientId = 1;
+    string familyCode = 2;
+    string familyName = 3;
+}
+message JoinFamilyReply {}
+
+message LeaveFamilyRequest {
+    string clientId = 1;
+}
+message LeaveFamilyReply {}
+
+service ClientService {
+    rpc searchSong (SearchSongRequest) returns (SearchSongReply);
+    rpc searchArtist (SearchArtistRequest) returns (SearchArtistReply);
+    rpc searchGenre (SearchGenreRequest) returns (SearchGenreReply);
+    rpc downloadSong (DownloadSongRequest) returns (DownloadSongReply);
+    rpc streamSong (StreamSongRequest) returns (StreamSongReply);
+    rpc previewSong (PreviewSongRequest) returns (PreviewSongReply);
+    rpc purchaseSong (PurchaseSongRequest) returns (PurchaseSongReply);
+    rpc viewMyPurchases (ViewMyPurchasesRequest) returns (ViewMyPurchasesReply);
+    rpc viewMyPreferences (ViewMyPreferencesRequest) returns (ViewMyPreferencesReply);
+    rpc addPreference (AddPreferenceRequest) returns (AddPreferenceReply);
+    rpc register (RegisterRequest) returns (RegisterReply);
+    rpc login (LoginRequest) returns (LoginReply);
+    rpc createFamily (FamilyCreationRequest) returns (FamilyCreationReply);
+    rpc joinFamily (JoinFamilyRequest) returns (JoinFamilyReply);
+    rpc leaveFamily(LeaveFamilyRequest) returns (LeaveFamilyReply);
+}

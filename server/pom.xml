@@ -1,0 +1,170 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+    <groupId>pt.tecnico.sirs</groupId>
+	<artifactId>server</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+
+    <properties>
+		<!-- compiler properties -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<java.version>1.8</java.version>
+		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+
+		<exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+		<appassembler-maven-plugin.version>2.1.0</appassembler-maven-plugin.version>
+
+		<javax.annotation-api.version>1.3.2</javax.annotation-api.version>
+		<jaxb.version>2.3.0</jaxb.version>
+		<gson.version>2.10.1</gson.version>
+		<junit.version>4.13.2</junit.version>
+
+		<!-- application properties - can be overriden in command line with -D -->
+		<mainclass>ServerMain</mainclass>
+		<package-name>GrooveServer</package-name>
+
+		<!--Arguments to connect to database-->
+		<database-ip>192.168.0.100</database-ip>
+		<database-name>test_groove</database-name>
+		<database-user>admin</database-user>
+		<database-password>admin123</database-password>
+
+		<!--This nexr argument is the name of the username @ database server-->
+		<database-server-username>groove-admin</database-server-username>
+
+		<!-- ATTENTION: You must provide full path, you cannot use "~" for home directory-->
+		<private-key-path>/home/groove-admin/.ssh/id_rsa</private-key-path>
+
+		<!-- Folder in the database server that will contain all the music
+		(it will be /home/<database-server-username>/<what you put next>
+		be aware that the music will be organized in this folder in a directory
+		per artist-->
+		<audio-files-directory-in-database>audio-files</audio-files-directory-in-database>
+
+		<!-- Seconds to reset the temporary keys used for secure document encryption -->
+		<seconds-to-reset-keys>30</seconds-to-reset-keys>
+		
+		<!-- Path to the keystore that will be used to store the permanent keys -->
+		<keystore-path>keys/</keystore-path>
+
+		<!-- If permanent keys should be encrypted according to user password-->
+		<!--If yes: true ; If no: false-->
+		<!-- <pbe-of-permanent-keys-activated>true</pbe-of-permanent-keys-activated> -->
+
+		<private-key-for-ds-path>keys/server.privkey</private-key-for-ds-path>
+
+		<scripts-path>src/GrooveServer/scripts/</scripts-path>
+
+		<!--Path in application server with musics to be uploaded to database server-->
+		<!--Bear in mind this path is relative to ServerMain.java location-->
+		<music-audio-path>music/audio/</music-audio-path>
+		
+		<!--Same but for lyrics-->
+		<music-lyrics-path>music/lyrics/</music-lyrics-path>
+
+		<!-- arguments are defined in exec plugin -->
+	</properties>
+
+    <dependencies>
+		<dependency>
+			<groupId>pt.tecnico.sirs</groupId>
+			<artifactId>contracts</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+        <dependency>
+            <groupId>pt.tecnico.sirs</groupId>
+            <artifactId>CryptographicLibrary</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+		<dependency>
+			<groupId>io.grpc</groupId>
+			<artifactId>grpc-netty-shaded</artifactId>
+			<version>1.41.0</version> <!-- Use the latest version available -->
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<version>8.2.0</version>
+		</dependency>
+
+
+		<!--Database connection driver:-->
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+
+		<!-- SFTP Library-->
+		<!-- https://mvnrepository.com/artifact/com.jcraft/jsch -->
+		<dependency>
+			<groupId>com.github.mwiede</groupId>
+			<artifactId>jsch</artifactId>
+			<version>0.2.13</version>
+		</dependency>
+
+
+
+    </dependencies>
+
+    <build>
+		<!-- change source code location -->
+		<sourceDirectory>src/</sourceDirectory>
+
+		<plugins>
+			<!--  Plugin used to compile the sources of your project. Java 9 requires at least version 3.7.0 to properly handle modules. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<!-- Plugin that provides two goals to execute system and Java programs -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>${exec-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>java</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>${package-name}.${mainclass}</mainClass>
+					<arguments>
+						<argument>${database-ip}</argument>
+						<argument>${database-name}</argument>
+						<argument>${database-user}</argument>
+						<argument>${database-password}</argument>
+						<argument>${database-server-username}</argument>
+						<argument>${private-key-path}</argument>
+						<argument>${audio-files-directory-in-database}</argument>
+						<argument>${seconds-to-reset-keys}</argument>
+						<argument>${keystore-path}</argument>
+						<!-- <argument>${pbe-of-permanent-keys-activated}</argument> -->
+						<argument>${private-key-for-ds-path}</argument>
+						<argument>${scripts-path}</argument>
+						<argument>${music-audio-path}</argument>
+						<argument>${music-lyrics-path}</argument>
+						<!-- can be defined here with multiple argument tags, 
+						or in command line with -Dexec.args="arg0 arg1 arg2" -->
+					</arguments>
+				</configuration>
+			</plugin>
+        </plugins>
+    </build>
+
+</project>
